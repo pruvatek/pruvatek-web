@@ -139,6 +139,8 @@
                             })
                         });
                         const flowData = await loginFlow.json();
+                        console.log('Flow data:', flowData);  // BU SATIRI EKLE
+
 
                         const loginResult = await fetch(`${haUrl}/auth/login_flow/${flowData.flow_id}`, {
                             method: 'POST',
