@@ -173,7 +173,7 @@
 
                 if (data.success) {
                     // Token'ı cookie'ye kaydet (7 gün)
-                    document.cookie = `pruvatek_token=${data.token}; path=/; max-age=${7*24*60*60}; secure; samesite=strict`;
+                    document.cookie = `pruvatek_token=${data.token}; path=/; domain=.pruvatek.com; max-age=${7*24*60*60}; secure; samesite=strict`;
                     // Subdomaine yönlendir
                     window.location.href = `https://${data.subdomain}.pruvatek.com`;
                 } else {
