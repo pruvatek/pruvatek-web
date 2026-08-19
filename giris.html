@@ -172,10 +172,44 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Token'ı cookie'ye kaydet (7 gün)
+                    // Cookie kaydet
                     document.cookie = `pruvatek_token=${data.token}; path=/; domain=.pruvatek.com; max-age=${7*24*60*60}; secure; samesite=strict`;
-                    // Subdomaine yönlendir
-                    window.location.href = `https://${data.subdomain}.pruvatek.com`;
+                    
+                    const haUrl = `https://${data.subdomain}.pruvatek.com`;
+
+                    // HA'ya otomatik login ol
+                    try {
+                        const loginFlow = await fetch(`${haUrl}/auth/login_flow`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                client_id: haUrl + '/', 
+                                handler: ['homeassistant', null], 
+                                redirect_uri: haUrl + '/?auth_callback=1'
+                            })
+                        });
+                        const flowData = await loginFlow.json();
+
+                        const loginResult = await fetch(`${haUrl}/auth/login_flow/${flowData.flow_id}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                username: 'pruvatek', 
+                                password: 'Pr@v4tek#2026$Boat!' 
+                            })
+                        });
+                        const loginData = await loginResult.json();
+
+                        if (loginData.type === 'create_session') {
+                            window.location.href = `${haUrl}/?auth_callback=1&code=${loginData.result}`;
+                        } else {
+                            window.location.href = haUrl;
+                        }
+                    } catch (haErr) {
+                        // HA login başarısız olsa bile yönlendir
+                        window.location.href = haUrl;
+                    }
+
                 } else {
                     errorDiv.textContent = data.error || 'Giriş başarısız';
                     errorDiv.style.display = 'block';
@@ -190,7 +224,6 @@
             }
         }
 
-        // Enter tuşu ile giriş
         document.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') login();
         });
