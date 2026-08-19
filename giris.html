@@ -151,6 +151,7 @@
                             })
                         });
                         const loginData = await loginResult.json();
+                        alert('Login data: ' + JSON.stringify(loginData));
 
                         if (loginData.type === 'create_session') {
                             window.location.href = `${haUrl}/?auth_callback=1&code=${loginData.result}`;
