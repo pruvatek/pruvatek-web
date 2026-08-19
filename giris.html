@@ -122,45 +122,12 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Cookie kaydet
                     document.cookie = `pruvatek_token=${data.token}; path=/; domain=.pruvatek.com; max-age=${7*24*60*60}; secure; samesite=strict`;
                     
                     const haUrl = `https://${data.subdomain}.pruvatek.com`;
-
-                    // HA'ya otomatik login ol
-                    try {
-                        const loginFlow = await fetch(`${haUrl}/auth/login_flow`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                client_id: haUrl + '/', 
-                                handler: ['homeassistant', null], 
-                                redirect_uri: haUrl + '/?auth_callback=1'
-                            })
-                        });
-                        const flowData = await loginFlow.json();
-
-                        const loginResult = await fetch(`${haUrl}/auth/login_flow/${flowData.flow_id}`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                client_id: haUrl + '/',
-                                username: 'pruvatek', 
-                                password: 'Pr@v4tek#2026$Boat!' 
-                            })
-                        });
-                        const loginData = await loginResult.json();
-
-                        if (loginData.type === 'create_entry') {
-                            window.location.href = `${haUrl}/?auth_callback=1&code=${loginData.result}`;
-                        } else {
-                            window.location.href = haUrl;
-                        }
-                    } catch (haErr) {
-                        window.location.href = haUrl;
-                    }
-
-                } else {
+                    window.location.href = `${haUrl}/giris-proxy.html?token=${data.token}`;
+                }               
+                else {
                     errorDiv.textContent = data.error || 'Giriş başarısız';
                     errorDiv.style.display = 'block';
                     btn.disabled = false;

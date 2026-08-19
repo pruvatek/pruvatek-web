@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Pruvatek – Bağlanıyor...</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(135deg, #0a1628 0%, #0d2444 50%, #0a1628 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, sans-serif;
+            color: #e8f4fd;
+        }
+        .card {
+            text-align: center;
+            padding: 48px;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(59,130,246,0.2);
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 24px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h2 { font-size: 20px; color: #e8f4fd; margin-bottom: 8px; }
+        p { color: #4a7fa8; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner"></div>
+        <h2>Bağlanıyor...</h2>
+        <p>Pruvatek panelinize yönlendiriliyorsunuz.</p>
+    </div>
+
+    <script>
+        async function haLogin() {
+            const params = new URLSearchParams(window.location.search);
+            const pruvatekToken = params.get('token');
+            
+            if (!pruvatekToken) {
+                window.location.href = 'https://pruvatek.com/giris.html';
+                return;
+            }
+
+            try {
+                const haUrl = window.location.origin;
+
+                // HA'ya login ol (aynı domain'den - CORS yok)
+                const loginFlow = await fetch(`${haUrl}/auth/login_flow`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        client_id: haUrl + '/', 
+                        handler: ['homeassistant', null], 
+                        redirect_uri: haUrl + '/?auth_callback=1'
+                    })
+                });
+                const flowData = await loginFlow.json();
+
+                const loginResult = await fetch(`${haUrl}/auth/login_flow/${flowData.flow_id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        client_id: haUrl + '/',
+                        username: 'pruvatek', 
+                        password: 'Pr@v4tek#2026$Boat!' 
+                    })
+                });
+                const loginData = await loginResult.json();
+
+                if (loginData.type === 'create_entry') {
+                    window.location.href = `${haUrl}/?auth_callback=1&code=${loginData.result}`;
+                } else {
+                    window.location.href = 'https://pruvatek.com/giris.html';
+                }
+            } catch (err) {
+                window.location.href = 'https://pruvatek.com/giris.html';
+            }
+        }
+
+        haLogin();
+    </script>
+</body>
+</html>
