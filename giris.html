@@ -139,7 +139,6 @@
                             })
                         });
                         const flowData = await loginFlow.json();
-                        alert('Flow data: ' + JSON.stringify(flowData));
 
                         const loginResult = await fetch(`${haUrl}/auth/login_flow/${flowData.flow_id}`, {
                             method: 'POST',
@@ -151,9 +150,8 @@
                             })
                         });
                         const loginData = await loginResult.json();
-                        alert('Login data: ' + JSON.stringify(loginData));
 
-                        if (loginData.type === 'create_session') {
+                        if (loginData.type === 'create_entry') {
                             window.location.href = `${haUrl}/?auth_callback=1&code=${loginData.result}`;
                         } else {
                             window.location.href = haUrl;
