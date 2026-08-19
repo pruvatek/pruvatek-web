@@ -125,7 +125,7 @@
                     document.cookie = `pruvatek_token=${data.token}; path=/; domain=.pruvatek.com; max-age=${7*24*60*60}; secure; samesite=strict`;
                     
                     const haUrl = `https://${data.subdomain}.pruvatek.com`;
-                    window.location.href = `${haUrl}/giris-proxy.html?token=${data.token}`;
+                    window.location.href = `${haUrl}/local/giris-proxy.html?token=${data.token}`;
                 }               
                 else {
                     errorDiv.textContent = data.error || 'Giriş başarısız';
